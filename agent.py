@@ -62,7 +62,7 @@ def main(
         if mode == 'yolo':
             cmd_args.append('--yolo')
         else:
-            cmd_args.extend(['--approval-mode', 'auto-approve'])
+            cmd_args.extend(['--approval-mode', 'auto_edit'])
         cmd_args.append(instructions)
     run('.', *cmd_args)
 

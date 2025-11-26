@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
+import subprocess
 import typer
 
-from common import run
 from enum import Enum
 from typing_extensions import Annotated
 
@@ -16,6 +16,13 @@ class Backend(str, Enum):
 class Mode(str, Enum):
     normal = 'normal'
     yolo = 'yolo'
+
+
+def run(cwd, *args, **kwargs):
+    """Shortcut to run a command in a given directory."""
+    kwargs.setdefault("check", True)
+    kwargs.setdefault("cwd", cwd)
+    return subprocess.run(args, **kwargs)
 
 
 def main(
@@ -67,5 +74,9 @@ def main(
     run('.', *cmd_args)
 
 
-if __name__ == '__main__':
+def cli():
     typer.run(main)
+
+
+if __name__ == '__main__':
+    cli()

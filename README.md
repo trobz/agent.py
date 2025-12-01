@@ -2,17 +2,23 @@
 
 This is to run different AI agents.
 
+# Installation
+
+```bash
+uv pip install git+https://github.com/trobz/agent.py
+```
+
 # Usage
 
 ```bash
-python agent.py <instructions>
+agent <instructions>
 ```
 
 Run the above command to run the agent with instructions and default `codex` agent.
 
 ```bash
-python agent.py --instructions-file <instructions file name>
-python agent.py -f <instructions file name>
+agent --instructions-file <instructions file name>
+agent -f <instructions file name>
 ```
 
 Alternatively run one of the above commands to run the agent with instructions in the file name.

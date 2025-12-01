@@ -1,0 +1,11 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v1.0.0
+_src_path: https://github.com/trobz/trobz-python-template.git
+author_email: hailn@trobz.com
+author_username: Hai Lang
+enable_github_action: false
+package_name: agent
+project_description: Run an AI agent
+project_name: agent
+repository_name: agent
+repository_namespace: trobz

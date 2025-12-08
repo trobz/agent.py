@@ -24,6 +24,31 @@ agent -f <instructions file name>
 Alternatively run one of the above commands to run the agent with instructions in the file name.
 
 ```bash
+agent --workflow <workflow file name>
+agent -w <workflow file name>
+```
+
+Or one of the above command can be ran to run the agent with multiple instructions in workflow file name. The format of the workflow file is as follows:
+
+```yaml
+- name: name of the work flow
+  code: code of the work flow
+  steps:
+    - name: name of the step
+      original: original instruction
+      work_dir: optionally work directory
+      command: bash command to run
+    - name: name of other step
+      original: original instruction
+      condition: bash command to run and check the return code
+      instruction: instruction to run the agent
+    - name: name of other step
+      original: original instruction
+      ignore: true
+      notes: notes
+```
+
+```bash
 --backend <agent name>
 ```
 

@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import pathlib
 import subprocess
 import typer
 import yaml
@@ -54,7 +55,7 @@ def run_agent(cwd, instructions, backend, mode, model):
     run(cwd, *cmd_args)
 
 
-def run_workflow(workflow, backend, mode, model):
+def run_workflow(workflow_dir, workflow, backend, mode, model):
     for step in workflow['steps']:
         if step.get('ignore', False):
             continue
@@ -72,8 +73,21 @@ def run_workflow(workflow, backend, mode, model):
                     run(cwd, 'bash', '-lc', step['condition'])
                 except (subprocess.CalledProcessError, FileNotFoundError) as e:
                     error = 1
+            instruction = step['instruction']
+            if 'files' in step:
+                instruction += '\n\nHere are files added for context:\n'
+                for file_name in step['files']:
+                    file = workflow_dir / file_name
+                    if not file.exists():
+                        print(f'File {file} does not exist.')
+                        error = 1
+                        continue
+                    with open(file, 'r') as f:
+                        instruction += f'\n# {file.name}\n```\n'
+                        instruction += f.read()
+                        instruction += '\n```\n'
             if not error:
-                run_agent(cwd, step['instruction'], backend, mode, model)
+                run_agent(cwd, instruction, backend, mode, model)
 
 
 def main(
@@ -102,9 +116,10 @@ def main(
         'Either instructions_file or instructions or workflow must be provided.'
     )
     if workflow:
+        workflow_dir = pathlib.Path(workflow).expanduser().resolve().parent
         with open(workflow, 'r') as file:
             workflow = yaml.safe_load(file)[0]
-        run_workflow(workflow, backend, mode, model)
+        run_workflow(workflow_dir, workflow, backend, mode, model)
     else:
         if instructions_file:
             with open(instructions_file, 'r') as file:

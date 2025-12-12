@@ -5,6 +5,7 @@ import subprocess
 import typer
 import yaml
 
+from datetime import datetime
 from enum import Enum
 from typing_extensions import Annotated
 
@@ -55,22 +56,30 @@ def run_agent(cwd, instructions, backend, mode, model):
     run(cwd, *cmd_args)
 
 
+def inject_var(command):
+    return command.replace('{module_dir}', '.')
+
+
 def run_workflow(workflow_dir, workflow, backend, mode, model):
     for step in workflow['steps']:
         if step.get('ignore', False):
             continue
         if 'work_dir' in step:
-            cwd = step['work_dir'].replace('{module_dir}', '.')
+            cwd = inject_var(step['work_dir'])
         else:
             cwd = '.'
-        print('Running step', step['name'])
+        now = datetime.now()
+        str_now = now.strftime('%Y-%m-%d %H:%M:%S')
+        print(f'{str_now} Running step', step['name'])
         if 'command' in step:
-            run(cwd, 'bash', '-lc', step['command'])
+            command = inject_var(step['command'])
+            run(cwd, 'bash', '-lc', command)
         elif 'instruction' in step:
             error = 0
             if 'condition' in step:
                 try:
-                    run(cwd, 'bash', '-lc', step['condition'])
+                    command = inject_var(step['condition'])
+                    run(cwd, 'bash', '-lc', command)
                 except (subprocess.CalledProcessError, FileNotFoundError) as e:
                     error = 1
             instruction = step['instruction']

@@ -52,7 +52,19 @@ Or one of the above command can be ran to run the agent with multiple instructio
 --backend <agent name>
 ```
 
-Add the above option to run the agent with agent name. Available agents: `codex`, `opencode`, and `gemini`.
+Add the above option to run the agent with agent name. Available agents: `codex`, `opencode`, `gemini`, and `litellm`.
+
+When using `--backend litellm`, the tool will call a LiteLLM-compatible HTTP endpoint (e.g., LM Studio). You can pass a custom base URL or API key either via flags or environment variables:
+
+```bash
+agent --backend litellm --model <model name> --litellm-provider openai --litellm-base-url http://localhost:1234/v1 --litellm-api-key <key-if-needed> "<your instructions>"
+
+# or via env vars
+LITELLM_PROVIDER=openai LITELLM_API_BASE=http://localhost:1234/v1 LITELLM_API_KEY=<key-if-needed> agent --backend litellm --model <model name> "<your instructions>"
+```
+
+Notes for LM Studio / OpenAI-compatible servers:
+- Default provider is `openai` and default model is `gpt-3.5-turbo`. Override `--model` with your served model name and keep the `openai` provider prefix for OpenAI-compatible APIs.
 
 ```bash
 --mode <mode>

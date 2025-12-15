@@ -1,1 +1,2 @@
 typer
+litellm>=1.52.0

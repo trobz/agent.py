@@ -6,7 +6,8 @@ authors = [{name = "Hai Lang", email = "hailn@trobz.com"}]
 requires-python = ">=3.10"
 readme = "README.md"
 dependencies = [
-    "typer>=0.19.2"
+    "typer>=0.19.2",
+    "litellm>=1.52.0",
 ]
 
 [project.urls]
@@ -34,5 +35,4 @@ build-backend = "uv_build"
 [tool.uv.build-backend]
 module-name = "agent"
 module-root = ""
-
 

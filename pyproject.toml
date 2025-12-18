@@ -1,6 +1,6 @@
 [project]
 name = "trobz-agent"
-version = "0.2.2"
+version = "1.0.0"
 description = "Run an AI agent"
 authors = [{name = "Hai Lang", email = "hailn@trobz.com"}]
 requires-python = ">=3.10"

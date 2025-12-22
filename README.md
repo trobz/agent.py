@@ -36,17 +36,21 @@ Or one of the above command can be ran to run the agent with multiple instructio
   steps:
     - name: name of the step
       original: original instruction
-      work_dir: optionally work directory
+      work_dir: optional work directory
       command: bash command to run
     - name: name of other step
       original: original instruction
-      condition: bash command to run and check the return code
+      condition: optional bash command to run and check the return code
       instruction: instruction to run the agent
     - name: name of other step
       original: original instruction
       ignore: true
       notes: notes
 ```
+
+step can have `files` set to a list of files to include in the instruction for the agent to consult.
+
+step can have `commit_if_change` set to either `true` or a string to commit the changes. If set to true, the step name is used as the commit message. If set to a string, the string is used instead.
 
 ```bash
 --backend <agent name>

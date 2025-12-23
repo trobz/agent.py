@@ -28,6 +28,11 @@ def run(cwd, *args, **kwargs):
     return subprocess.run(args, **kwargs)  # noqa: S603
 
 
+def run_read(cwd, *args, **kwargs):
+    """Shortcut to run a command in a given directory."""
+    return run(cwd, *args, **kwargs, stdout=subprocess.PIPE).stdout.decode("utf-8")
+
+
 def run_agent(cwd, instructions, backend, mode, model):
     if backend == "codex":
         cmd_args = ["codex", "--full-auto"]
@@ -64,6 +69,17 @@ def inject_var(command):
     return command.replace("{module_dir}", ".")
 
 
+def commit_if_change(cwd, step):
+    changes = run_read(cwd, "git", "status", "--short")
+    if not changes.strip():
+        return
+    run(cwd, "git", "add", ".")
+    message = step["commit_if_change"]
+    if message == True:  # noqa: E712
+        message = step["name"]
+    run(cwd, "git", "commit", "-m", message)
+
+
 def run_workflow(workflow_dir, workflow, backend, mode, model):  # noqa: C901
     for step in workflow["steps"]:
         if step.get("ignore", False):
@@ -98,6 +114,8 @@ def run_workflow(workflow_dir, workflow, backend, mode, model):  # noqa: C901
                         instruction += "\n```\n"
             if not error:
                 run_agent(cwd, instruction, backend, mode, model)
+        if step.get("commit_if_change"):
+            commit_if_change(cwd, step)
 
 
 def main(

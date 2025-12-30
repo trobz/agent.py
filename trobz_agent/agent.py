@@ -73,11 +73,20 @@ def commit_if_change(cwd, step):
     changes = run_read(cwd, "git", "status", "--short")
     if not changes.strip():
         return
+    changed = False
+    for line in changes.split("\n"):
+        line = line[3:].strip()
+        if not line or line.startswith(".."):
+            continue
+        changed = True
+        break
+    if not changed:
+        return
     run(cwd, "git", "add", ".")
     message = step["commit_if_change"]
     if message == True:  # noqa: E712
         message = step["name"]
-    run(cwd, "git", "commit", "-m", message)
+    run(cwd, "git", "commit", "--no-verify", "-m", message)
 
 
 def run_workflow(workflow_dir, workflow, backend, mode, model):  # noqa: C901

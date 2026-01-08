@@ -14,6 +14,7 @@ class Backend(str, Enum):
     codex = "codex"
     opencode = "opencode"
     gemini = "gemini"
+    claude = "claude"
 
 
 class Mode(str, Enum):
@@ -33,7 +34,7 @@ def run_read(cwd, *args, **kwargs):
     return run(cwd, *args, **kwargs, stdout=subprocess.PIPE).stdout.decode("utf-8")
 
 
-def run_agent(cwd, instructions, backend, mode, model):
+def run_agent(cwd, instructions, backend, mode, model):  # noqa: C901
     if backend == "codex":
         cmd_args = ["codex", "--full-auto"]
         if model:
@@ -61,6 +62,13 @@ def run_agent(cwd, instructions, backend, mode, model):
             cmd_args.append("--yolo")
         else:
             cmd_args.extend(["--approval-mode", "auto_edit"])
+        cmd_args.append(instructions)
+    elif backend == "claude":
+        cmd_args = ["claude", "--print"]
+        if model:
+            cmd_args.extend(["--model", model])
+        if mode == "yolo":
+            cmd_args.append("--dangerously-skip-permissions")
         cmd_args.append(instructions)
     run(cwd, *cmd_args)
 

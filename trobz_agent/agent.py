@@ -14,6 +14,7 @@ class Backend(str, Enum):
     codex = "codex"
     opencode = "opencode"
     gemini = "gemini"
+    claude = "claude"
 
 
 class Mode(str, Enum):
@@ -33,7 +34,7 @@ def run_read(cwd, *args, **kwargs):
     return run(cwd, *args, **kwargs, stdout=subprocess.PIPE).stdout.decode("utf-8")
 
 
-def run_agent(cwd, instructions, backend, mode, model):
+def run_agent(cwd, instructions, backend, mode, model):  # noqa: C901
     if backend == "codex":
         cmd_args = ["codex", "--full-auto"]
         if model:
@@ -61,6 +62,13 @@ def run_agent(cwd, instructions, backend, mode, model):
             cmd_args.append("--yolo")
         else:
             cmd_args.extend(["--approval-mode", "auto_edit"])
+        cmd_args.append(instructions)
+    elif backend == "claude":
+        cmd_args = ["claude", "--print"]
+        if model:
+            cmd_args.extend(["--model", model])
+        if mode == "yolo":
+            cmd_args.append("--dangerously-skip-permissions")
         cmd_args.append(instructions)
     run(cwd, *cmd_args)
 
@@ -90,6 +98,7 @@ def commit_if_change(cwd, step):
 
 
 def run_workflow(workflow_dir, workflow, backend, mode, model):  # noqa: C901
+    constraints = workflow.get("constraints", "")
     for step in workflow["steps"]:
         if step.get("ignore", False):
             continue
@@ -108,9 +117,9 @@ def run_workflow(workflow_dir, workflow, backend, mode, model):  # noqa: C901
                     run(cwd, "bash", "-lc", command)
                 except (subprocess.CalledProcessError, FileNotFoundError):
                     error = 1
-            instruction = step["instruction"]
+            instruction = step["instruction"] + "\n"
             if "files" in step:
-                instruction += "\n\nHere are files added for context:\n"
+                instruction += "\nHere are files added for context:\n"
                 for file_name in step["files"]:
                     file = workflow_dir / file_name
                     if not file.exists():
@@ -121,6 +130,8 @@ def run_workflow(workflow_dir, workflow, backend, mode, model):  # noqa: C901
                         instruction += f"\n# {file.name}\n```\n"
                         instruction += f.read()
                         instruction += "\n```\n"
+            if constraints:
+                instruction = f"# Task\n\n{instruction}\n# Constraints\n\n{constraints}\n"
             if not error:
                 run_agent(cwd, instruction, backend, mode, model)
         if step.get("commit_if_change"):
